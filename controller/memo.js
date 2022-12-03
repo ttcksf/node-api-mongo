@@ -26,3 +26,18 @@ exports.create = async (req, res, next) => {
       .send({ error: String(error), message: "error occured" });
   }
 };
+
+exports.update = async (req, res, next) => {
+  //expressで"memo/:id"のidを取得する
+  const id = req.params.id;
+  const checked = req.body.checked;
+
+  try {
+    await usecase.memo.update(id, checked);
+    return res.status(200).send({});
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ error: String(error), message: "error occured" });
+  }
+};

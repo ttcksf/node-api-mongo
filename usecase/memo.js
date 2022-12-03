@@ -17,3 +17,11 @@ exports.create = async (message, checked) => {
     throw error;
   }
 };
+
+exports.update = async (id, checked) => {
+  try {
+    await service.memo.update(id, checked);
+  } catch (error) {
+    throw error;
+  }
+};

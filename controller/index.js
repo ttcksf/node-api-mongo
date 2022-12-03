@@ -6,5 +6,6 @@ exports.memo = () => {
   //"/memo"以下のパスで良いので"/"にしている
   router.get("/", memo.getAll);
   router.post("/", memo.create);
+  router.patch("/:id", memo.update);
   return router;
 };
