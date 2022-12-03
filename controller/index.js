@@ -7,5 +7,6 @@ exports.memo = () => {
   router.get("/", memo.getAll);
   router.post("/", memo.create);
   router.patch("/:id", memo.update);
+  router.delete("/", memo.delete);
   return router;
 };

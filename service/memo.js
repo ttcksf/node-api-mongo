@@ -54,3 +54,23 @@ exports.update = async (id, checked) => {
     throw error;
   }
 };
+
+exports.delete = async (id) => {
+  //引数で渡されたidがdbの_idとして有効なフォーマットか
+  //ObjectIdは「24バイトの16進数」「12バイトのバイナリ、数値」である必要がある
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new Error("invalid memo id");
+  }
+  try {
+    const memo = await model.memo.findOneAndDelete({
+      _id: new mongoose.Types.ObjectId(id),
+    });
+    //更新したドキュメントがなかった時は、指定したidが最初から無かったということでエラーを返す
+    //findOneAndDeleteの返り値はnullが適用されるルール
+    if (memo == null) {
+      throw new Error("memo not found");
+    }
+  } catch (error) {
+    throw error;
+  }
+};

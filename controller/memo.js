@@ -41,3 +41,15 @@ exports.update = async (req, res, next) => {
       .send({ error: String(error), message: "error occured" });
   }
 };
+
+exports.delete = async (req, res, next) => {
+  //expressで"memo/?id=xxx"のxxxを取得する
+  const id = req.query.id;
+
+  try {
+    await usecase.memo.delete(id);
+    return res.status(200).send({});
+  } catch (error) {
+    return res.status(500).send({ error: String(e), message: "error occured" });
+  }
+};
