@@ -1,0 +1,142 @@
+<!-- 追加 -->
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Memo App</title>
+  <link href="./index.css" rel="stylesheet" />
+  <link
+    href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"
+    rel="stylesheet"
+  />
+</head>
+<div class="memoapp">
+  <form onsubmit="return createMemo()">
+    <input
+      class="new-memo"
+      name="message"
+      type="text"
+      placeholder="memoを入力"
+      autocomplete="off"
+    />
+  </form>
+  <span class="count_memo">件数: 0</span>
+  <div class="memo-list">
+    <ul></ul>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  const hostname = "http://localhost:3000";
+  const parseMemo = () => {
+    const data = $("form").serializeArray();
+    return data.reduce((acc, current) => {
+      acc[current.name] = current.value;
+      return acc;
+    }, {});
+  };
+  const buildContent = (memos) => {
+    $("ul").empty();
+    memos.forEach((memo) => {
+      const _id = memo._id;
+      const message = memo.message;
+      const checked = memo.checked;
+      $("ul").append(
+        `<li id="li_${_id}"><div class="memo input input--checkbox input--success input--large" id="memo_${_id}"><input class="check_memo" type="checkbox" name="memo" id="check_${_id}" onchange="completeMemo(this.id, this.checked)"><label for="check_${_id}">${message}<label><button class="delete delete_memo" id="del_${_id}" onclick="deleteMemo(this.id)"><i class="far fa-trash-alt"></i></button></div></li>`
+      );
+      $(`#check_${_id}`).prop("checked", checked);
+    });
+    $(".count_memo").text(`件数: ${memos.length}`);
+  };
+  const getMemo = () => {
+    const body = parseMemo();
+    fetch(`${hostname}/memo`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.status >= 400 && res.message) {
+          throw res.message;
+        }
+        return res;
+      })
+      .then((res) => {
+        buildContent(res.memos ?? []);
+      })
+      .catch((err) => {
+        alert(err);
+      });
+    return false;
+  };
+  const createMemo = () => {
+    const body = parseMemo();
+    fetch(`${hostname}/memo`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.status >= 400 && res.message) {
+          throw res.message;
+        }
+        getMemo();
+        $(".new-memo").val("");
+        return;
+      })
+      .catch((err) => {
+        alert(err);
+      });
+    return false;
+  };
+  const completeMemo = (id, changeTo) => {
+    const objectId = id.split("_")[1];
+    // update check status
+    fetch(`${hostname}/memo/${objectId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        checked: changeTo,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          throw res.error;
+        }
+        getMemo();
+        return;
+      })
+      .catch((err) => {
+        alert(err);
+      });
+  };
+  const deleteMemo = (id) => {
+    const objectId = id.split("_")[1];
+    // delete memo
+    fetch(`${hostname}/memo?id=${objectId}`, {
+      method: "DELETE",
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          throw res.error;
+        }
+        getMemo();
+        return;
+      })
+      .catch((err) => {
+        alert(err);
+      });
+  };
+
+  $(function () {
+    getMemo();
+  });
+</script>

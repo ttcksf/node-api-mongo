@@ -1,10 +1,13 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const port = 3000;
 const morgan = require("morgan");
 const mongoose = require("mongoose");
 const controller = require("./controller/index.js");
 
+//corsライブラリをミドルウェアとして使う
+app.use(cors());
 //useはミドルウェアと言い、処理を行う前や行なった後に実施する関数
 //APIのリクエストをreq.bodyとして受け取れるようにしている。
 app.use(express.json());
